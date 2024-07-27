@@ -1,7 +1,7 @@
 import type { Group, PatchedGroup } from "../../types";
 
 export async function getGroups(): Promise<Group[] | null> {
-    const response = await fetch('/api/v1/group', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -17,7 +17,7 @@ export async function getGroups(): Promise<Group[] | null> {
 }
 
 export async function createGroup(group: Group): Promise<Group | null> {
-    const response = await fetch('/api/v1/group', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -34,7 +34,7 @@ export async function createGroup(group: Group): Promise<Group | null> {
 }
 
 export async function updateGroup(group: PatchedGroup, groupId: number): Promise<Group | null> {
-    const response = await fetch(`/api/v1/group/${groupId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json"
@@ -51,7 +51,7 @@ export async function updateGroup(group: PatchedGroup, groupId: number): Promise
 }
 
 export async function deleteGroup(groupId: number): Promise<void> {
-    await fetch(`/api/v1/group/${groupId}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json"

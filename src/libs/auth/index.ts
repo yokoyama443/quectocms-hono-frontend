@@ -1,7 +1,7 @@
 import type { Login, Register, UserHead} from "../../types";
 
 export async function login(loginData: Login): Promise<UserHead | null> {
-    const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/login', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: "POST",
         credentials: 'include',
         headers: {
@@ -20,7 +20,7 @@ export async function login(loginData: Login): Promise<UserHead | null> {
 }
 
 export async function register(registerData: Register): Promise<UserHead | null> {
-    const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/register', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: "POST",
         credentials: 'include',
         headers: {
@@ -38,7 +38,7 @@ export async function register(registerData: Register): Promise<UserHead | null>
 }
 
 export async function logout(): Promise<void> {
-    await fetch('/api/auth/logout', {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
         credentials: 'include',
         method: "POST",
         headers: {
