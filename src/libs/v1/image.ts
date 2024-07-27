@@ -3,6 +3,7 @@ export async function uploadImage(image: File): Promise<string | null> {
     formData.append('image', image);
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/image`, {
         method: "POST",
+        credentials: 'include',
         body: formData
     });
 

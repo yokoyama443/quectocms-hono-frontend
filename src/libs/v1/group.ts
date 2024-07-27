@@ -36,6 +36,7 @@ export async function createGroup(group: Group): Promise<Group | null> {
 export async function updateGroup(group: PatchedGroup, groupId: number): Promise<Group | null> {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}`, {
         method: "PATCH",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         },
@@ -53,6 +54,7 @@ export async function updateGroup(group: PatchedGroup, groupId: number): Promise
 export async function deleteGroup(groupId: number): Promise<void> {
     await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}`, {
         method: "DELETE",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         }
