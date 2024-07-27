@@ -3,13 +3,13 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    proxy: {
-      "/api": {
-        target: "https://api.cms.yokoyama443.dev/",
-        changeOrigin: true
-      }
-    }
-  },
+  // server: {
+  //   proxy: {
+  //     "/api": {
+  //       target: "https://api.cms.yokoyama443.dev/",
+  //       changeOrigin: true
+  //     }
+  //   }
+  // },
   plugins: [react()],
 })

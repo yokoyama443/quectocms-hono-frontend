@@ -1,7 +1,7 @@
 import type { Login, Register, UserHead} from "../../types";
 
 export async function login(loginData: Login): Promise<UserHead | null> {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/login', {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -19,7 +19,7 @@ export async function login(loginData: Login): Promise<UserHead | null> {
 }
 
 export async function register(registerData: Register): Promise<UserHead | null> {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/register', {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
