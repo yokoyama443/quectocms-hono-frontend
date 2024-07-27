@@ -1,0 +1,1514 @@
+openapi: 3.0.3
+info:
+  title: quectocms API
+  description: quectocms API
+  version: 0.0.1
+servers:
+  - url: http://localhost:8787
+    description: quectocms API (Local)
+paths:
+  /api/v1/{group_id}/article:
+    get:
+      summary: 記事一覧取得
+      description: グループIDに紐づく記事一覧を取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: ページ番号
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: 1ページあたりの表示数
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: タグ名
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 記事一覧取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleHeads"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      security:
+        - cookieAuth: []
+      summary: 記事作成
+      description: グループIDに紐づく記事を作成する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Article"
+      responses:
+        "201":
+          description: 記事作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/{group_id}/article/{article_id}:
+    get:
+      summary: 記事取得
+      description: グループIDに紐づく記事を取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: article_id
+          in: path
+          required: true
+          description: 記事ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 記事取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      security:
+        - cookieAuth: []
+      summary: 記事更新
+      description: グループIDに紐づく記事を更新する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: article_id
+          in: path
+          required: true
+          description: 記事ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedArticle"
+      responses:
+        "200":
+          description: 記事更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      security:
+        - cookieAuth: []
+      summary: 記事削除
+      description: グループIDに紐づく記事を削除する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: article_id
+          in: path
+          required: true
+          description: 記事ID
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 記事削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/{group_id}/article/n/{article_name}:
+    get:
+      summary: 記事取得
+      description: グループIDに紐づく記事を取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: article_name
+          in: path
+          required: true
+          description: 記事名
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 記事取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/{group_id}/series:
+    get:
+      summary: シリーズ一覧取得
+      description: グループIDに紐づくシリーズ一覧を取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: ページ番号
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: 1ページあたりの表示数
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: タグ名
+          schema:
+            type: string
+      responses:
+        "200":
+          description: シリーズ一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/SeriesHeads"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      security:
+        - cookieAuth: []
+      summary: シリーズ作成
+      description: グループIDに紐づくシリーズを作成する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Series"
+      responses:
+        "201":
+          description: シリーズ作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Series"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/{group_id}/series/{series_id}:
+    get:
+      summary: シリーズ取得
+      description: グループIDに紐づくシリーズを取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: series_id
+          in: path
+          required: true
+          description: シリーズID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: シリーズ取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Series"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      security:
+        - cookieAuth: []
+      summary: シリーズ更新
+      description: グループIDに紐づくシリーズを更新する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: series_id
+          in: path
+          required: true
+          description: シリーズID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedSeries"
+      responses:
+        "200":
+          description: シリーズ更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Series"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      security:
+        - cookieAuth: []
+      summary: シリーズ削除
+      description: グループIDに紐づくシリーズを削除する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: series_id
+          in: path
+          required: true
+          description: シリーズID
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: シリーズ削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/{group_id}/series/n/{series_name}:
+    get:
+      summary: シリーズ取得
+      description: グループIDに紐づくシリーズを取得する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+        - name: series_name
+          in: path
+          required: true
+          description: シリーズ名
+          schema:
+            type: string
+      responses:
+        "200":
+          description: シリーズ取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Series"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/group:
+    get:
+      summary: グループ一覧取得
+      description: グループ一覧を取得する
+      responses:
+        "200":
+          description: グループ一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      security:
+        - cookieAuth: []
+      summary: グループ作成
+      description: グループを作成する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Group"
+      responses:
+        "201":
+          description: グループ作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/group/{group_id}:
+    patch:
+      security:
+        - cookieAuth: []
+      summary: グループ更新
+      description: グループを更新する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedGroup"
+      responses:
+        "200":
+          description: グループ更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      security:
+        - cookieAuth: []
+      summary: グループ削除
+      description: グループを削除する
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          description: グループID
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: グループ削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/user:
+    get:
+      summary: ユーザー一覧取得
+      description: ユーザー一覧を取得する
+      responses:
+        "200":
+          description: ユーザー一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/user/{user_id}:
+    get:
+      summary: ユーザー取得
+      description: ユーザーを取得する
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ユーザーID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ユーザー取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/register:
+    post:
+      summary: ユーザー登録
+      description: ユーザーを登録する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Register"
+      responses:
+        "201":
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/login:
+    post:
+      summary: ログイン
+      description: ログインする
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/logout:
+    post:
+      summary: ログアウト
+      description: ログアウトする
+      responses:
+        "204":
+          description: ログアウト成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/me:
+    get:
+      security:
+        - cookieAuth: []
+      summary: ログインユーザー取得
+      description: ログイン中のユーザーを取得する
+      responses:
+        "200":
+          description: ログインユーザー取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      security:
+        - cookieAuth: []
+      summary: ログインユーザー更新
+      description: ログイン中のユーザーを更新する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedUser"
+      responses:
+        "200":
+          description: ログインユーザー更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      security:
+        - cookieAuth: []
+      summary: ログインユーザー削除
+      description: ログイン中のユーザーを削除する
+      responses:
+        "204":
+          description: ログインユーザー削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/refresh:
+    post:
+      summary: トークン更新
+      description: トークンを更新する
+      responses:
+        "200":
+          description: トークン更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/admin/users:
+    get:
+      security:
+        - cookieAuth: []
+      summary: フルユーザー一覧取得
+      description: フルユーザー一覧を取得する
+      responses:
+        "200":
+          description: フルユーザー一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FullUser"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/auth/admin/users/{user_id}:
+    get:
+      security:
+        - cookieAuth: []
+      summary: フルユーザー取得
+      description: フルユーザーを取得する
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ユーザーID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: フルユーザー取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FullUser"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      security:
+        - cookieAuth: []
+      summary: フルユーザー更新
+      description: フルユーザーを更新する
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: フルユーザーID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedFullUser"
+      responses:
+        "200":
+          description: フルユーザー更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      security:
+        - cookieAuth: []
+      summary: フルユーザー削除
+      description: フルユーザーを削除する
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: フルユーザーID
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: フルユーザー削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        username:
+          type: string
+          description: ユーザー名
+        detail:
+          type: string
+          description: ユーザー詳細
+        icon:
+          type: string
+          description: アイコンURL
+      required:
+        - id
+        - created_at
+        - username
+        - detail
+        - icon
+    FullUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          description: メールアドレス
+        detail:
+          type: string
+          description: ユーザー詳細
+        icon:
+          type: string
+          description: アイコンURL
+        role:
+          type: string
+          enum: [admin, editor]
+          description: ロール
+          readOnly: true
+      required:
+        - id
+        - created_at
+        - username
+        - email
+        - detail
+        - icon
+        - role
+    UserHead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        username:
+          type: string
+          description: ユーザー名
+          readOnly: true
+        icon:
+          type: string
+          description: アイコンURL
+          readOnly: true
+      required:
+        - id
+        - created_at
+        - username
+        - icon
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: グループID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        name:
+          type: string
+          description: グループ名
+      required:
+        - id
+        - created_at
+        - name
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 記事ID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        name:
+          type: string
+          description: Locator
+        title:
+          type: string
+          description: タイトル
+        author:
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - readOnly: true
+        thumbnail:
+          type: string
+          description: サムネイルURL
+        description:
+          type: string
+          description: 記事概要
+        body:
+          type: string
+          description: 本文
+        Series:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesHead"
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+          readOnly: true
+        tag_names:
+          type: string
+          description: Create用タグ作成
+          writeOnly: true
+        is_public:
+          type: boolean
+          description: 公開設定
+      required:
+        - id
+        - created_at
+        - name
+        - title
+        - author
+        - body
+        - is_public
+    ArticleHeads:
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArticleHead"
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        total_items:
+          type: integer
+      required:
+        - articles
+        - page
+        - per_page
+        - total_pages
+        - total_items
+    Series:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: シリーズID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        name:
+          type: string
+          description: Locator
+        title:
+          type: string
+          description: タイトル
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+          readOnly: true
+        tag_names:
+          type: string
+          description: Create用タグ作成
+          writeOnly: true
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesArticle"
+      required:
+        - id
+        - created_at
+        - name
+        - title
+        - articles
+    SeriesArticle:
+      type: object
+      properties:
+        priolity:
+          type: integer
+        article:
+          allOf:
+            - $ref: "#/components/schemas/ArticleHead"
+          readOnly: true
+        article_id:
+          type: integer
+          description: 記事ID
+          writeOnly: true
+      required: 
+        - priolity
+        - article
+    SeriesHeads:
+      type: object
+      properties:
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesHead"
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        total_items:
+          type: integer
+      required:
+        - series
+        - page
+        - per_page
+        - total_pages
+        - total_items
+    SeriesHead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: シリーズID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        name:
+          type: string
+          description: Locator
+          readOnly: true
+        title:
+          type: string
+          description: タイトル
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+          readOnly: true
+        articles:
+          type: array
+          items:
+            priolity:
+              type: integer
+            $ref: "#/components/schemas/ArticleHead"
+          readOnly: true
+      required:
+        - id
+        - created_at
+        - name
+        - title
+        - articles
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: タグID
+        name:
+          type: string
+          description: タグ名
+      required:
+        - id
+        - name
+    ArticleHead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 記事ID
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          readOnly: true
+        name:
+          type: string
+          description: Locator
+          readOnly: true
+        title:
+          type: string
+          description: タイトル
+          readOnly: true
+        author:
+          type: object
+          $ref: "#/components/schemas/UserHead"
+        thumbnail:
+          type: string
+          description: サムネイルURL
+          readOnly: true
+        description:
+          type: string
+          description: 記事概要
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+          readOnly: true
+        is_public:
+          type: boolean
+          description: 公開設定
+          readOnly: true
+      required:
+        - id
+        - created_at
+        - name
+        - title
+        - is_public
+    PatchedFullUser:
+      type: object
+      properties:
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          description: メールアドレス
+        detail:
+          type: string
+          description: ユーザー詳細
+        icon:
+          type: string
+          description: アイコンURL
+        role:
+          type: string
+          enum: [admin, editor]
+          description: ロール
+      required:
+        - username
+        - email
+        - detail
+        - icon
+        - role
+    PatchedArticle:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Locator
+        title:
+          type: string
+          description: タイトル
+        thumbnail:
+          type: string
+          description: サムネイルURL
+        description:
+          type: string
+          description: 記事概要
+        body:
+          type: string
+          description: 本文
+        group_id:
+          type: integer
+          description: グループID
+        tag_names:
+          type: string
+        is_public:
+          type: boolean
+          description: 公開設定
+      required:
+        - name
+        - title
+        - thumbnail
+        - description
+        - body
+        - group_id
+        - is_public
+    PatchedSeries:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Locator
+        title:
+          type: string
+          description: タイトル
+        tag_names:
+          type: string
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesArticle"
+      required:
+        - name
+        - title
+        - articles
+    PatchedGroup:
+      type: object
+      properties:
+        name:
+          type: string
+          description: グループ名
+      required:
+        - name
+    PatchedUser:
+      type: object
+      properties:
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          description: メールアドレス
+        detail:
+          type: string
+          description: ユーザー詳細
+        icon:
+          type: string
+          description: アイコンURL
+      required:
+        - username
+        - email
+        - detail
+        - icon
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          description: メールアドレス
+        password:
+          type: string
+          description: パスワード
+        host_password:
+          type: string
+          description: ホストパスワード
+      required:
+        - username
+        - email
+        - password
+        - host_password
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          description: メールアドレス
+        password:
+          type: string
+          description: パスワード
+      required:
+        - email
+        - password
+    PatchedConfig:
+      type: object
+      properties:
+        host_password:
+          type: string
+          description: ホストパスワード
+        contents_server_address:
+          type: string
+          description: コンテンツサーバーアドレス
+      required:
+        - host_password
+        - contents_server_address
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTPステータスコード
+        title:
+          type: string
+          description: エラーのタイトル
+        detail:
+          type: string
+          description: エラーの詳細な説明
+      required:
+        - status
+        - title
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: アクセス権限がありません
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalServerError:
+      description: サーバー内部エラーが発生しました
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+security:
+  - cookieAuth: []
