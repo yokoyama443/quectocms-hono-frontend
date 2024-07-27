@@ -3,6 +3,7 @@ import type { Login, Register, UserHead} from "../../types";
 export async function login(loginData: Login): Promise<UserHead | null> {
     const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/login', {
         method: "POST",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         },
@@ -21,6 +22,7 @@ export async function login(loginData: Login): Promise<UserHead | null> {
 export async function register(registerData: Register): Promise<UserHead | null> {
     const response = await fetch('https://api.cms.yokoyama443.dev/api/auth/register', {
         method: "POST",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         },
@@ -37,6 +39,7 @@ export async function register(registerData: Register): Promise<UserHead | null>
 
 export async function logout(): Promise<void> {
     await fetch('/api/auth/logout', {
+        credentials: 'include',
         method: "POST",
         headers: {
             "Content-Type": "application/json"
