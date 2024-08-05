@@ -1,4 +1,4 @@
-import type { Login, Register, UserHead} from "../../types";
+import type { Login, Register, UserHead } from "../../types";
 
 export async function login(loginData: Login): Promise<UserHead | null> {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {

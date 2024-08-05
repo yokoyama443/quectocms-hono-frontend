@@ -215,6 +215,7 @@ export const ArticlePage = () => {
                                     <h3 className="text-lg font-semibold text-gray-700 mb-2">記事情報</h3>
                                     <p><span className="font-medium">作成日:</span> {new Date(article.created_at).toLocaleString()}</p>
                                     <p><span className="font-medium">最終更新日:</span> {article.updated_at ? new Date(article.updated_at).toLocaleString() : ''}</p>
+                                    <p><span className="font-medium">著者:</span> {article.author.username}</p>
                                 </div>
                             </div>
                         </div>

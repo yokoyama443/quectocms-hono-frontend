@@ -3,6 +3,7 @@ import type { Group, PatchedGroup } from "../../types";
 export async function getGroups(): Promise<Group[] | null> {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group`, {
         method: "GET",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         }
@@ -19,6 +20,7 @@ export async function getGroups(): Promise<Group[] | null> {
 export async function createGroup(group: Group): Promise<Group | null> {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group`, {
         method: "POST",
+        credentials: 'include',
         headers: {
             "Content-Type": "application/json"
         },

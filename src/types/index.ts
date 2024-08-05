@@ -12,6 +12,8 @@ export type User = {
   detail: string
   /** アイコンURL */
   icon: string
+  /** ロール */
+  role?: 'admin' | 'editor' | undefined
 }
 
 export type FullUser = {
