@@ -46,3 +46,24 @@ export async function logout(): Promise<void> {
         }
     });
 }
+
+export async function getCurrentUser(): Promise<UserHead | null> {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/user/me`, {
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return null;
+    }
+}

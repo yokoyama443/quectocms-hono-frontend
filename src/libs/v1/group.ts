@@ -53,6 +53,24 @@ export async function updateGroup(group: PatchedGroup, groupId: number): Promise
     return data;
 }
 
+export async function updateGroupWebhook(groupId: number, webhookUrl: string | null): Promise<Group | null> {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}/webhook`, {
+        method: "PATCH",
+        credentials: 'include',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ webhook_url: webhookUrl })
+    });
+
+    if (!response.ok) {
+        return null;
+    }
+
+    const data = await response.json();
+    return data;
+}
+
 export async function deleteGroup(groupId: number): Promise<void> {
     await fetch(`${import.meta.env.VITE_API_URL}/api/v1/group/${groupId}`, {
         method: "DELETE",

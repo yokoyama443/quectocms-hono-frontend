@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom"
-import { getGroups, deleteGroup, updateGroup } from "../libs/v1/group";
-import type { ArticleHeads, Group, PatchedGroup } from "../types";
-import { getArticle, getArticles } from "../libs/v1/article";
+import { getGroups, deleteGroup, updateGroup, updateGroupWebhook } from "../libs/v1/group";
+import type { ArticleHeads, Group, PatchedGroup, OutAPI, PostOutAPI } from "../types";
+import { getArticles } from "../libs/v1/article";
+import { deleteOutAPI, getOutAPIs, createOutAPI } from "../libs/v1/outapi";
+import { PageLayout } from "../components/layout";
+import { Card, CardHeader, CardContent, Button, Loading, Modal } from "../components/ui";
+import { GroupForm, OutAPIForm, WebhookForm } from "../components/forms";
 
 export const GroupPage = () => {
     const { groupId } = useParams();
     const [group, setGroup] = useState<Group | null>(null);
-    const [newGroupName, setNewGroupName] = useState("");
-    const [isGroupEdit, setIsGroupEdit] = useState(false);
-    const [isGroupDelete, setIsGroupDelete] = useState(false);
     const [articleHeads, setArticleHeads] = useState<ArticleHeads | null>(null);
+    const [outAPIs, setOutAPIs] = useState<OutAPI[] | null>(null);
+    const [isGroupEditModalOpen, setIsGroupEditModalOpen] = useState(false);
+    const [isGroupDeleteModalOpen, setIsGroupDeleteModalOpen] = useState(false);
+    const [isOutAPICreateModalOpen, setIsOutAPICreateModalOpen] = useState(false);
+    const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,154 +44,346 @@ export const GroupPage = () => {
             setArticleHeads(data);
         });
 
+        getOutAPIs(Number.parseInt(groupId)).then((data) => {
+            setOutAPIs(data);
+        });
+
     }, [groupId]);
 
 
-    async function handleDelete() {
-        if (group === null) {
-            return;
+    const handleDeleteGroup = async () => {
+        if (!group) return;
+        
+        setIsLoading(true);
+        try {
+            await deleteGroup(group.id);
+            navigate("/");
+        } catch (error) {
+            console.error("Delete group error:", error);
+        } finally {
+            setIsLoading(false);
         }
-        await deleteGroup(group.id);
-        navigate("/");
-    }
+    };
 
-    async function handleUpdate(name: string) {
-        if (group === null || name === "") {
-            return;
-        }
-        const patchedGroup: PatchedGroup = { name: name };
-        updateGroup(patchedGroup, group.id).then((data) => {
+    const handleUpdateGroup = async (name: string) => {
+        if (!group || !name) return;
+        
+        setIsLoading(true);
+        try {
+            const patchedGroup: PatchedGroup = { name: name };
+            const data = await updateGroup(patchedGroup, group.id);
+            
             if (data === null) {
-                alert("update failed");
-                console.error("Failed to fetch data");
-                return;
+                throw new Error("Update failed");
             }
-            alert("update success");
+            
             setGroup(data);
-            setIsGroupEdit(false);
-        });
-    }
+            setIsGroupEditModalOpen(false);
+        } catch (error) {
+            console.error("Update group error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCreateOutAPI = async (name: string, password: string) => {
+        if (!groupId) return;
+        
+        setIsLoading(true);
+        try {
+            const postOutAPI: PostOutAPI = { name, password };
+            const data = await createOutAPI(Number.parseInt(groupId), postOutAPI);
+            
+            if (data === null) {
+                throw new Error("Failed to create outapi");
+            }
+            
+            setOutAPIs([...(outAPIs ?? []), data]);
+            setIsOutAPICreateModalOpen(false);
+        } catch (error) {
+            console.error("Create OutAPI error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteOutAPI = async (outAPIId: number) => {
+        if (!groupId) return;
+        
+        try {
+            await deleteOutAPI(Number.parseInt(groupId), outAPIId);
+            setOutAPIs(outAPIs?.filter(api => api.id !== outAPIId) ?? []);
+        } catch (error) {
+            console.error("Delete OutAPI error:", error);
+        }
+    };
+
+    const handleUpdateWebhook = async (webhookUrl: string | null) => {
+        if (!group) return;
+        
+        setIsLoading(true);
+        try {
+            const updatedGroup = await updateGroupWebhook(group.id, webhookUrl);
+            
+            if (updatedGroup === null) {
+                throw new Error("Failed to update webhook");
+            }
+            
+            setGroup(updatedGroup);
+            setIsWebhookModalOpen(false);
+        } catch (error) {
+            console.error("Update webhook error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white shadow rounded-lg overflow-hidden">
-                    <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            {group ? group.name : 'グループページ'}
-                        </h1>
-                    </div>
-
-                    <div className="px-4 py-5 sm:p-6">
-                        {isGroupEdit && (
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="groupName" className="block text-sm font-medium text-gray-700">
-                                        新しいグループ名
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="groupName"
-                                        value={newGroupName}
-                                        onChange={(e) => setNewGroupName(e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    />
-                                </div>
-                                <div className="flex space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleUpdate(newGroupName)}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        更新
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsGroupEdit(false)}
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        キャンセル
-                                    </button>
-                                </div>
+        <PageLayout title={`${group?.name || 'グループ'} - QuectoCMS`}>
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-900">
+                                    {group ? group.name : 'グループページ'}
+                                </h1>
+                                <p className="text-gray-600 mt-2">記事とAPIを管理します</p>
+                                {group?.webhook_url && (
+                                    <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Webhook設定済み
+                                    </div>
+                                )}
                             </div>
-                        )}
-
-                        {isGroupDelete && (
-                            <div className="space-y-4">
-                                <p className="text-red-600 font-medium">グループを削除しますか？この操作は取り消せません．</p>
-                                <div className="flex space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete()}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                    >
-                                        削除
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsGroupDelete(false)}
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        キャンセル
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {!isGroupEdit && !isGroupDelete && (
                             <div className="flex space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsGroupEdit(true)}
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => setIsWebhookModalOpen(true)}
                                 >
-                                    グループ名変更
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsGroupDelete(true)}
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                    Webhook設定
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => setIsGroupEditModalOpen(true)}
+                                >
+                                    名前変更
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    onClick={() => setIsGroupDeleteModalOpen(true)}
                                 >
                                     グループ削除
-                                </button>
+                                </Button>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    </CardHeader>
+                </Card>
 
-                    <div className="px-4 py-5 sm:px-6 border-t border-gray-200">
+                <Card>
+                    <CardHeader>
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg leading-6 font-medium text-gray-900 mb-4">記事一覧</h2>
-                            <Link to="article" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                記事作成
+                            <h2 className="text-xl font-semibold text-gray-900">記事一覧</h2>
+                            <Link to="article/create">
+                                <Button variant="primary" size="sm">
+                                    記事作成
+                                </Button>
                             </Link>
                         </div>
+                    </CardHeader>
+                    <CardContent>
                         {articleHeads === null ? (
-                            <p className="text-gray-500">読み込み中...</p>
+                            <Loading text="記事を読み込み中..." />
+                        ) : articleHeads.articles.length === 0 ? (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500 mb-4">記事がまだありません</p>
+                                <Link to="article/create">
+                                    <Button variant="primary">
+                                        最初の記事を作成
+                                    </Button>
+                                </Link>
+                            </div>
                         ) : (
-                            <ul className="divide-y divide-gray-200">
+                            <div className="space-y-3">
                                 {articleHeads.articles.map((article) => (
-                                    <li key={article.id} className="py-4">
-                                        <Link
-                                            to={`/group/${groupId}/article/${article.id}`}
-                                            className="flex items-center hover:bg-gray-50 rounded-md p-2 transition duration-150 ease-in-out"
-                                        >
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-indigo-600 truncate">{article.title}</p>
-                                                <p className="text-sm text-gray-500 truncate">{new Date(article.created_at).toLocaleString()}</p>
-                                            </div>
-                                            <div>
-                                                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </Link>
-                                    </li>
+                                    <Link
+                                        key={article.id}
+                                        to={`/group/${groupId}/article/${article.id}`}
+                                        className="flex items-center space-x-4 p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition duration-150 ease-in-out"
+                                    >
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-medium text-gray-900 truncate">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(article.created_at).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <div className="flex-shrink-0">
+                                            <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </Link>
                                 ))}
-                            </ul>
+                            </div>
                         )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-gray-900">シリーズ一覧</h2>
+                            <Link to="series">
+                                <Button variant="primary" size="sm">
+                                    シリーズ管理
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-center py-4">
+                            <p className="text-gray-500 mb-4">複数の記事をシリーズとしてグループ化</p>
+                            <Link to="series">
+                                <Button variant="secondary">
+                                    シリーズページへ
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-gray-900">出力API一覧</h2>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => setIsOutAPICreateModalOpen(true)}
+                            >
+                                API作成
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {outAPIs === null ? (
+                            <Loading text="APIを読み込み中..." />
+                        ) : outAPIs.length === 0 ? (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500 mb-4">出力APIがまだありません</p>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => setIsOutAPICreateModalOpen(true)}
+                                >
+                                    最初のAPIを作成
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {outAPIs.map((outAPI) => (
+                                    <div
+                                        key={outAPI.id}
+                                        className="flex items-center justify-between p-4 rounded-lg border border-gray-200"
+                                    >
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-medium text-gray-900 truncate">
+                                                {outAPI.name}
+                                            </h3>
+                                            <p className="text-xs text-gray-500">
+                                                外部API
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleDeleteOutAPI(outAPI.id)}
+                                        >
+                                            削除
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Group Edit Modal */}
+            <Modal
+                isOpen={isGroupEditModalOpen}
+                onClose={() => setIsGroupEditModalOpen(false)}
+                title="グループ名を変更"
+            >
+                <GroupForm
+                    initialName={group?.name || ''}
+                    onSubmit={handleUpdateGroup}
+                    onCancel={() => setIsGroupEditModalOpen(false)}
+                    isLoading={isLoading}
+                    submitLabel="更新"
+                />
+            </Modal>
+
+            {/* Group Delete Confirmation Modal */}
+            <Modal
+                isOpen={isGroupDeleteModalOpen}
+                onClose={() => setIsGroupDeleteModalOpen(false)}
+                title="グループを削除"
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-700">
+                        「{group?.name}」を削除しますか？この操作は取り消せません。
+                    </p>
+                    <div className="flex space-x-3">
+                        <Button
+                            variant="danger"
+                            onClick={handleDeleteGroup}
+                            disabled={isLoading}
+                            className="flex-1"
+                        >
+                            {isLoading ? '削除中...' : '削除'}
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsGroupDeleteModalOpen(false)}
+                            disabled={isLoading}
+                            className="flex-1"
+                        >
+                            キャンセル
+                        </Button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </Modal>
+
+            {/* OutAPI Create Modal */}
+            <Modal
+                isOpen={isOutAPICreateModalOpen}
+                onClose={() => setIsOutAPICreateModalOpen(false)}
+                title="新しい出力APIを作成"
+            >
+                <OutAPIForm
+                    onSubmit={handleCreateOutAPI}
+                    onCancel={() => setIsOutAPICreateModalOpen(false)}
+                    isLoading={isLoading}
+                />
+            </Modal>
+
+            {/* Webhook Settings Modal */}
+            <Modal
+                isOpen={isWebhookModalOpen}
+                onClose={() => setIsWebhookModalOpen(false)}
+                title="Webhook設定"
+                size="lg"
+            >
+                <WebhookForm
+                    initialUrl={group?.webhook_url || ''}
+                    onSubmit={handleUpdateWebhook}
+                    onCancel={() => setIsWebhookModalOpen(false)}
+                    isLoading={isLoading}
+                />
+            </Modal>
+        </PageLayout>
     );
 }
