@@ -57,6 +57,8 @@ export type Group = {
   updated_at?: string | undefined
   /** グループ名 */
   name: string
+  /** Webhook URL */
+  webhook_url?: string | undefined
 }
 
 export type Article = {
@@ -113,12 +115,17 @@ export type Series = {
 }
 
 export type SeriesArticle = {
-  priolity: number
+  priority: number
 
   article: ArticleHead
 
   /** 記事ID */
   article_id?: number | undefined
+}
+
+export type PatchedSeriesArticle = {
+  article_id: number
+  priority: number
 }
 
 export type SeriesHeads = {
@@ -213,6 +220,8 @@ export type PatchedSeries = {
 export type PatchedGroup = {
   /** グループ名 */
   name?: string | undefined
+  /** Webhook URL */
+  webhook_url?: string | undefined
 }
 
 export type PatchedUser = {
@@ -249,6 +258,24 @@ export type PatchedConfig = {
   host_password: string
   /** コンテンツサーバーアドレス */
   contents_server_address: string
+}
+
+export type OutAPI = {
+  /** API ID */
+  id: number
+  /** API名 */
+  name: string
+  /** 作成日時 */
+  created_at: string
+  /** 更新日時 */
+  updated_at?: string | undefined
+}
+
+export type PostOutAPI = {
+  /** API名 */
+  name: string
+  /** パスワード */
+  password: string
 }
 
 export type Error = {
