@@ -68,7 +68,7 @@ export async function updateArticle(groupId: number, articleId: number, article:
     }
 
     const data = await response.json();
-    return data.url;
+    return data;
 }
 
 export async function deleteArticle(groupId: number, articleId: number): Promise<void> {
