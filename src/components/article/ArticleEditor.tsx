@@ -16,8 +16,27 @@ export const ArticleEditor: React.FC<ArticleEditorProps> = ({
     disabled = false
 }) => {
     const insertTextAtCursor = (insertString: string): string | null => {
-        const textarea = document.querySelector('.w-md-editor-text-area') as HTMLTextAreaElement;
-        if (!textarea) return null;
+        // Try multiple possible selectors for the MDEditor textarea
+        const selectors = [
+            '.w-md-editor-text-area',
+            '.w-md-editor textarea',
+            '.w-md-editor-text textarea',
+            'textarea[data-color-mode]',
+            '.w-md-editor .w-md-editor-text-area',
+            '.w-md-editor .w-md-editor-text textarea'
+        ];
+        
+        let textarea: HTMLTextAreaElement | null = null;
+        for (const selector of selectors) {
+            textarea = document.querySelector(selector) as HTMLTextAreaElement;
+            if (textarea) break;
+        }
+        
+        if (!textarea) {
+            console.warn('Could not find MDEditor textarea. Available textareas:', 
+                document.querySelectorAll('textarea'));
+            return null;
+        }
 
         const sentence = textarea.value;
         const len = sentence.length;
@@ -31,6 +50,10 @@ export const ArticleEditor: React.FC<ArticleEditorProps> = ({
         textarea.value = newSentence;
         textarea.selectionEnd = end + insertString.length;
 
+        // Trigger input event to notify React of the change
+        const event = new Event('input', { bubbles: true });
+        textarea.dispatchEvent(event);
+
         return newSentence;
     };
 
@@ -42,9 +65,18 @@ export const ArticleEditor: React.FC<ArticleEditorProps> = ({
             try {
                 const imageUrl = await uploadImage(file);
                 if (imageUrl) {
-                    const insertedText = insertTextAtCursor(`![image](${imageUrl})`);
+                    const imageMarkdown = `![image](${imageUrl})`;
+                    
+                    // Try to insert at cursor position first
+                    const insertedText = insertTextAtCursor(imageMarkdown);
                     if (insertedText) {
                         onChange(insertedText);
+                    } else {
+                        // Fallback: append to current value
+                        const currentValue = value || '';
+                        const newValue = currentValue + (currentValue ? '\n\n' : '') + imageMarkdown;
+                        onChange(newValue);
+                        console.log('Inserted image at end of content:', imageMarkdown);
                     }
                 }
             } catch (error) {
